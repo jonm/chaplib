@@ -12,5 +12,6 @@ providing enough customization to get the protocol behavior you desire.
 
 What's in a name?
 -----------------
-chap = *C*lient using *H*TTP as an *A*pplication *P*rotocol
-lib = library
+chap = *Client* using *HTTP* as an *Application* *Protocol*
+
+lib = um, library?
