@@ -17,8 +17,12 @@
  */
 package org.chaplib;
 
+/**
+ * Officially registered character set names from the IANA registry
+ * as of 2012-03-13.
+ */
 public class IANACharacterSets {
-    public static final String[] characterSets = {
+    public static final String[] CHARACTER_SETS = {
         "437",
         "850",
         "851",
