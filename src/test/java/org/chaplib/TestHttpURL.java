@@ -2,6 +2,7 @@ package org.chaplib;
 
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -169,5 +170,17 @@ public class TestHttpURL {
         URL canon = url1.getCanonicalURL();
         HttpURL url2 = new HttpURL(canon.toString());
         assertEquals(canon, url2.getCanonicalURL());
+    }
+    
+    @Test
+    public void canCreateFromURI() throws Exception {
+        String s = "http://ABC.com:/%7esmith/home.html";
+        assertEquals(new HttpURL(s), new HttpURL(new URI(s)));
+    }
+    
+    @Test
+    public void canCreateFromURL() throws Exception {
+        String s = "http://ABC.com:/%7esmith/home.html";
+        assertEquals(new HttpURL(s), new HttpURL(new URL(s)));
     }
 }

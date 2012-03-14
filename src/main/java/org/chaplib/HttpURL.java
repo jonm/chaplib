@@ -2,6 +2,7 @@ package org.chaplib;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 
@@ -23,6 +24,14 @@ public class HttpURL {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("must be created with valid URL syntax", e);
         }
+    }
+
+    public HttpURL(URI uri) {
+        this(uri.toString());
+    }
+
+    public HttpURL(URL url) {
+        this(url.toString());
     }
 
     private URL canonicalURL(URL url) {
