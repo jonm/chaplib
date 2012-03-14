@@ -2,6 +2,9 @@ package org.chaplib;
 
 import static org.junit.Assert.*;
 
+import java.net.URL;
+import java.net.URLEncoder;
+
 import org.junit.Test;
 
 
@@ -110,5 +113,61 @@ public class TestHttpURL {
      * http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.2.3
      * http://www.ietf.org/rfc/rfc2396.txt
      */
+    @Test
+    public void reservedURLCharactersAreNotEqualToTheirHexEncoding() throws Exception {
+        String[] reserved = { ";", "/", "?", ":", "@", "&", "=", "+",
+                "$", "," };
+        for(String s : reserved) {
+            HttpURL url1 = new HttpURL("http://www.example.com/" + s);
+            HttpURL url2 = new HttpURL("http://www.example.com/" + URLEncoder.encode(s, "utf-8"));
+            assertFalse(url1.equals(url2));
+        }
+    }
     
+    @Test
+    public void unsafeURLCharactersAreNotEqualToTheirHexEncoding() throws Exception {
+        String[] unsafe = { "{", "}", "|", "\\", "^", "[", "]", "`" };
+        for(String s : unsafe) {
+            HttpURL url1 = new HttpURL("http://www.example.com/" + s);
+            HttpURL url2 = new HttpURL("http://www.example.com/" + URLEncoder.encode(s, "utf-8"));
+            assertFalse(url1.equals(url2));
+        }
+    }
+
+    @Test
+    public void otherCharactersAreEqualToTheirHexEncoding() throws Exception {
+        String unreserved = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" +
+            "-_.!~*'()";
+        for(int i=0; i<unreserved.length(); i++) {
+            Character c = unreserved.charAt(i);
+            HttpURL url1 = new HttpURL("http://www.example.com/" + c);
+            byte b = ("" + c).getBytes()[0];
+            HttpURL url2 = new HttpURL("http://www.example.com/" + String.format("%%%x", b));
+            assertTrue(url1.equals(url2));
+        }
+    }
+    
+    /*
+     * "For example, the following three URIs are equivalent:
+     * http://abc.com:80/~smith/home.html
+     * http://ABC.com/%7Esmith/home.html
+     * http://ABC.com:/%7esmith/home.html"
+     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.2.3
+     */
+    @Test
+    public void rfc2616ExamplesAreEqual() {
+        assertEquals(new HttpURL("http://abc.com:80/~smith/home.html"),
+                new HttpURL("http://ABC.com/%7Esmith/home.html"));
+        assertEquals(new HttpURL("http://ABC.com/%7Esmith/home.html"),
+                new HttpURL("http://ABC.com:/%7esmith/home.html"));
+    }
+    
+    @Test
+    public void canGetCanonicalURI() {
+        String uri = "http://ABC.com:/%7esmith/home.html";
+        HttpURL url1 = new HttpURL(uri);
+        URL canon = url1.getCanonicalURL();
+        HttpURL url2 = new HttpURL(canon.toString());
+        assertEquals(canon, url2.getCanonicalURL());
+    }
 }
