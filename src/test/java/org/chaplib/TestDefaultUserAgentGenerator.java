@@ -16,6 +16,10 @@ public class TestDefaultUserAgentGenerator {
         impl = new DefaultUserAgentGenerator();
     }
     
+    /*
+     * "User agents SHOULD include this [User-Agent] field with requests."
+     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.43
+     */
     @Test
     public void generatesAUserAgentString() {
         HttpRequest request = new HttpGet("http://www.example.com/");
