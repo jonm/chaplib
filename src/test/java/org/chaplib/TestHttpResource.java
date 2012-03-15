@@ -73,6 +73,7 @@ public class TestHttpResource {
         assertEquals("GET", arg.getValue().getMethod());
     }
     
+    
     @Test(expected=RuntimeException.class)
     public void transformsIOExceptionOnGet() throws Exception {
         when(mockHttpClient.execute(any(HttpUriRequest.class))).thenThrow(new IOException());
@@ -165,5 +166,19 @@ public class TestHttpResource {
         assertSame(entity, arg.getValue().getEntity());
     }
     
+    /*
+     * "User agents SHOULD include this [User-Agent] field with requests."
+     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.43
+     */
+    @Test
+    public void setsUserAgentForGet() throws Exception {
+        ArgumentCaptor<HttpUriRequest> arg = ArgumentCaptor.forClass(HttpUriRequest.class);
+        when(mockHttpClient.execute(arg.capture())).thenReturn(response);
+        when(mockParser.parse(entity)).thenReturn(parsed);
+        impl.value(mockParser);
+        String ua = arg.getValue().getFirstHeader("User-Agent").getValue();
+        assertNotNull(ua);
+        assertFalse("".equals(ua.trim()));
+    }
 
 }

@@ -57,6 +57,7 @@ public class HttpResource {
 
     private HttpResponse execute(HttpUriRequest req) {
         try {
+            req.setHeader("User-Agent", "chaplib/0.1.0 Apache-HttpClient/4.1.3");
             return httpClient.execute(req);
         } catch (ClientProtocolException e) {
             throw new RuntimeException(e);
