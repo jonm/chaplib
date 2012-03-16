@@ -73,6 +73,14 @@ public class TestHttpResource {
         assertEquals("GET", arg.getValue().getMethod());
     }
     
+    @Test
+    public void usesHTTP1_1ForValue() throws Exception {
+        ArgumentCaptor<HttpUriRequest> arg = ArgumentCaptor.forClass(HttpUriRequest.class);
+        when(mockHttpClient.execute(arg.capture())).thenReturn(response);
+        impl.value(mockParser);
+        assertEquals(HttpVersion.HTTP_1_1, arg.getValue().getProtocolVersion());
+    }
+    
     
     @Test(expected=RuntimeException.class)
     public void transformsIOExceptionOnGet() throws Exception {
@@ -133,12 +141,28 @@ public class TestHttpResource {
     }
     
     @Test
+    public void usesHTTP1_1ForDelete() throws Exception {
+        ArgumentCaptor<HttpUriRequest> arg = ArgumentCaptor.forClass(HttpUriRequest.class);
+        when(mockHttpClient.execute(arg.capture())).thenReturn(response);
+        impl.delete();
+        assertEquals(HttpVersion.HTTP_1_1, arg.getValue().getProtocolVersion());
+    }
+    
+    @Test
     public void issuesPutForReplaceOrCreate() throws Exception {
         ArgumentCaptor<HttpUriRequest> arg = ArgumentCaptor.forClass(HttpUriRequest.class);
         when(mockHttpClient.execute(arg.capture())).thenReturn(response);
         impl.replaceOrCreate(entity);
         assertEquals(uri, arg.getValue().getURI());
         assertEquals("PUT", arg.getValue().getMethod());
+    }
+    
+    @Test
+    public void usesHTTP1_1ForPut() throws Exception {
+        ArgumentCaptor<HttpUriRequest> arg = ArgumentCaptor.forClass(HttpUriRequest.class);
+        when(mockHttpClient.execute(arg.capture())).thenReturn(response);
+        impl.replaceOrCreate(entity);
+        assertEquals(HttpVersion.HTTP_1_1, arg.getValue().getProtocolVersion());
     }
 
     @Test
@@ -156,6 +180,14 @@ public class TestHttpResource {
         impl.post(entity);
         assertEquals(uri, arg.getValue().getURI());
         assertEquals("POST", arg.getValue().getMethod());
+    }
+    
+    @Test
+    public void usesHTTP1_1ForPost() throws Exception {
+        ArgumentCaptor<HttpUriRequest> arg = ArgumentCaptor.forClass(HttpUriRequest.class);
+        when(mockHttpClient.execute(arg.capture())).thenReturn(response);
+        impl.post(entity);
+        assertEquals(HttpVersion.HTTP_1_1, arg.getValue().getProtocolVersion());
     }
 
     @Test
