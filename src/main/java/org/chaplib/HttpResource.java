@@ -67,19 +67,29 @@ public class HttpResource {
     }
 
     public void delete() {
-        execute(new HttpDelete(uri));
+        consumeBodyOf(execute(new HttpDelete(uri)));
+    }
+
+    private void consumeBodyOf(HttpResponse resp) {
+        HttpEntity entity = resp.getEntity();
+        if (entity == null) return;
+        try {
+            EntityUtils.consume(entity);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void replaceOrCreate(HttpEntity entity) {
         HttpPut req = new HttpPut(uri);
         req.setEntity(entity);
-        execute(req);
+        consumeBodyOf(execute(req));
     }
 
     public void post(HttpEntity entity) {
         HttpPost req = new HttpPost(uri);
         req.setEntity(entity);
-        execute(req);
+        consumeBodyOf(execute(req));
     }
 
 }
