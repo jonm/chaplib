@@ -20,7 +20,7 @@ public class RequestCollapser<T> {
     /**
      * Creates a <code>RequestCollapser</code> that will
      * execute the given request exactly once, and share
-     * it with as many threads show up while the request
+     * its result with any threads that show up while the request
      * is outstanding. The request will not be executed
      * until at least one thread issues a <code>get()</code>
      * on this collapser.
@@ -38,7 +38,7 @@ public class RequestCollapser<T> {
      * desired may share the result as long as the backend
      * request is still outstanding.
      * @return result of the request
-     * @throws {@link TooLateException} if the request has
+     * @throws TooLateException if the request has
      *   already been completed
      */
     public T get() {
@@ -89,7 +89,7 @@ public class RequestCollapser<T> {
     }
 
     /**
-     * Indicates whether the backend request has completed
+     * Indicates whether the backend request has been completed
      * (true) or is still outstanding (false).
      */
     public synchronized boolean isFinished() {
