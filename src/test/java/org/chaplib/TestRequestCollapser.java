@@ -1,7 +1,6 @@
 package org.chaplib;
 
 import static org.junit.Assert.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -10,19 +9,19 @@ import org.junit.Test;
 
 public class TestRequestCollapser {
 
-    private Callable<Object> callable;
+    private Computation<Object> computation;
     private RequestCollapser<Object> impl;
     private Object result;
 
     @Before
     public void setUp() {
         result = new Object();
-        callable = new Callable<Object>() {
-            public Object call() throws Exception {
+        computation = new Computation<Object>() {
+            public Object execute() {
                 return result;
             }
         };
-        impl = new RequestCollapser<Object>(callable);
+        impl = new RequestCollapser<Object>(computation);
     }
     
     @Test
@@ -38,9 +37,13 @@ public class TestRequestCollapser {
 
     @Test
     public void twoConcurrentCallersCanGetResults() throws Exception {
-        Callable<Object> c = new Callable<Object>() {
-            public Object call() throws Exception {
-                Thread.sleep(50L);
+        Computation<Object> c = new Computation<Object>() {
+            public Object execute() {
+                try {
+                    Thread.sleep(50L);
+                } catch (InterruptedException e) {
+                    fail("interrupted");
+                }
                 return result;
             }
         };
@@ -64,9 +67,13 @@ public class TestRequestCollapser {
     @Test
     public void onlyOneRequestForTwoConcurrentCallers() throws Exception {
         final Counter cnt = new Counter();
-        Callable<Object> c = new Callable<Object>() {
-            public Object call() throws Exception {
-                Thread.sleep(50L);
+        Computation<Object> c = new Computation<Object>() {
+            public Object execute() {
+                try {
+                    Thread.sleep(50L);
+                } catch (InterruptedException e) {
+                    fail("interrupted");
+                }
                 synchronized(cnt) {
                     cnt.count++;
                 }
@@ -85,18 +92,6 @@ public class TestRequestCollapser {
         (new Thread(r)).start();
         assertTrue(cdl.await(1L, TimeUnit.SECONDS));
         assertEquals(1, cnt.count);
-    }
-
-        
-    @Test
-    public void collapserWithNoGettersIsntFinished() {
-        assertFalse(impl.isFinished());
-    }
-    
-    @Test
-    public void collapserAfterAGetIsFinished() {
-        impl.get();
-        assertTrue(impl.isFinished());
     }
 
 }

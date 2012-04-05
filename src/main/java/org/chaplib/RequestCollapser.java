@@ -1,6 +1,5 @@
 package org.chaplib;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -12,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RequestCollapser<T> {
 
-    private Callable<T> request;
+    private Computation<T> request;
     private T result;
     private boolean finished = false;
     private CountDownLatch latch = null;
@@ -27,7 +26,7 @@ public class RequestCollapser<T> {
      * @param request the (long-running) backend request
      *   whose result is to be shared
      */
-    public RequestCollapser(Callable<T> request) {
+    public RequestCollapser(Computation<T> request) {
         this.request = request;
     }
     
@@ -61,7 +60,7 @@ public class RequestCollapser<T> {
     }
 
     private void performRequestInThisThread() {
-        result = executeRequest();
+        result = request.execute();
         recordRequestWasCompleted();
     }
 
@@ -75,25 +74,9 @@ public class RequestCollapser<T> {
         }
     }
 
-    private T executeRequest() {
-        try {
-            return request.call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private synchronized void recordRequestWasCompleted() {
         finished = true;
         latch.countDown();
-    }
-
-    /**
-     * Indicates whether the backend request has been completed
-     * (true) or is still outstanding (false).
-     */
-    public synchronized boolean isFinished() {
-        return finished;
     }
 
 }
